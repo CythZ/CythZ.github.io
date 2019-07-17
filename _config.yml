@@ -76,7 +76,7 @@ plugins:
 # ---------------------------------------------------------------
 
 # Put your favicon.ico into `assets/` directory.
-favicon: /assets/favicon.ico
+favicon: assets/favicon.ico
 
 # Set default keywords (Use a comma to separate)
 keywords: "Jekyll, NexT"
@@ -373,7 +373,7 @@ han: false
 #swiftype_key:
 
 # Baidu Analytics ID
-#baidu_analytics:
+baidu_analytics: ff6a93bdd23ba3d7a62f625966d58e96
 
 # Duoshuo ShortName
 #duoshuo_shortname:

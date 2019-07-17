@@ -166,6 +166,16 @@
 
 
 
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?ff6a93bdd23ba3d7a62f625966d58e96";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
 
 
 
@@ -699,6 +709,20 @@ sleep(0.1)是两个sendline之间的常规操作来应对玄学问题[我猜的]
 </div>
 
 
+<div id="gitmentContainer"></div>
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+    owner: 'CythZ',
+    repo: 'https://github.com/CythZ/CythZ.github.io.git',
+    oauth: {
+        client_id: '7f9aa36ea2ba7a10b6ff',
+        client_secret: '170fc93045774170b9952e46f249d8ea0d718a99',
+    },
+});
+gitment.render('gitmentContainer');
+</script>
           </div>
           
 
