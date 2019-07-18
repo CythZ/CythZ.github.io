@@ -712,6 +712,7 @@ sleep(0.1)是两个sendline之间的常规操作来应对玄学问题[我猜的]
 <script src="https://jjeejj.github.io/js/gitment.js"></script>
 <script>
 var gitment = new Gitment({
+    id: decodeURI(window.location.pathname),
     owner: 'CythZ',
     repo: 'CythZ.github.io',
     oauth: {
@@ -785,7 +786,7 @@ gitment.render('gitmentContainer');
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -796,7 +797,7 @@ gitment.render('gitmentContainer');
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -807,7 +808,7 @@ gitment.render('gitmentContainer');
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/">
-                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-count">8</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
