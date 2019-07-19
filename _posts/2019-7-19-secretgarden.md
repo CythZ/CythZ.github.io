@@ -51,6 +51,8 @@ tags: heap double_free
 
 # exp
 
+2.27仍旧没法跑= =
+
 ```python
 from pwn import * 
 context.log_level = 'debug'
