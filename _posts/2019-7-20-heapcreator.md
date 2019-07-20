@@ -34,18 +34,18 @@ tags: heap  off_by_one  chunk_extend
 
 在`ptmalloc`中，chunk_header是定位前后chunk的重要依据。  
 
-- 获取下一chunk
+- 获取下一chunk    
     当前指针加上`header`中`size`的大小。
-- 获取前一chunk
+- 获取前一chunk   
     当前指针减去`header`中`pre_size`的大小。
 
 
 ## 判断是否在使用
-- 判断前一chunk是否在使用当中
+- 判断前一chunk是否在使用当中   
     `size`中的`pre_inuse`标志。
-- 判断当前chunk是否在使用当中
-    查看下一个chunk的`pre_inuse`标志。
-- 判断下一chunk是否在使用当中
+- 判断当前chunk是否在使用当中   
+    查看下一个chunk的`pre_inuse`标志。   
+- 判断下一chunk是否在使用当中    
     查看下下一个chunk的`pre_inuse`标志。
 
 ## 原理
