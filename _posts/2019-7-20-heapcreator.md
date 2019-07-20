@@ -3,7 +3,7 @@ title: lab13_heapcreator
 date: 2019-07-20
 categories:
 - hitcon_trainning
-tag: heap  off_by_one  chunk_extend
+tags: heap  off_by_one  chunk_extend
 ---
 
 **<font style="font-size:25px">Off By One & chunk_extend</font>**
