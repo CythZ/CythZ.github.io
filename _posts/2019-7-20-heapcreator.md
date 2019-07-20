@@ -38,6 +38,8 @@ tags: heap  off_by_one  chunk_extend
     当前指针加上`header`中`size`的大小。
 - 获取前一chunk
     当前指针减去`header`中`pre_size`的大小。
+
+
 ## 判断是否在使用
 - 判断前一chunk是否在使用当中
     `size`中的`pre_inuse`标志。
