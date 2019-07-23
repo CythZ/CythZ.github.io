@@ -1,7 +1,7 @@
 ---
 title: lab14_magicheap
 data: 2019-07-23
-catagories:
+categories:
 - hitcon_trainning
 tags: heap unlink unsortedbin_attack
 ---
@@ -26,7 +26,7 @@ tags: heap unlink unsortedbin_attack
     unsorted_chunks(av) -> bk = bck 
     bck -> fd = unsorted_chunks(av)
     ```
-    
+
 ## attack
 
 - 如果控制了`victim`的bk指向`target_addr - 8`,那么`target_addr`就可以被改写成为`unsorted_bin`的地址。
