@@ -1,6 +1,6 @@
 ---
 title: guestbook
-date: 2019=07-23
+date: 2019-07-23
 categories:
 - javrisoj
 tags: stack RSP
