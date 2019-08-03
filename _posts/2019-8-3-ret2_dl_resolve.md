@@ -2,7 +2,7 @@
 title: ret2_dl_resolve
 date: 2019-08-03
 categories:
-- stack_高级rop
+- stack_advanced_rop
 tags: stack ret2_dl_resolve rop
 ---
 
